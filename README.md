@@ -68,10 +68,11 @@ pip install opencv-python
 
 You can now copy this application and run it to see if the stream is working:
 
-> Check thr rtsp_url!
+> Check the rtsp_url and set the output_dir path!
 
 ``` python
 import cv2
+import os
 
 # Define the RTSP stream URL
 rtsp_url = "rtsp://localhost:8554/gopro"
@@ -83,6 +84,14 @@ if not cap.isOpened():
     print("Error: Could not open RTSP stream.")
     exit()
 
+# Create a directory to save the frames
+output_dir = "saved_frames"
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+frame_count = 0
+saved_frame_count = 0
+
 while True:
     ret, frame = cap.read()
     if not ret:
@@ -91,6 +100,15 @@ while True:
 
     # Display the frame
     cv2.imshow('RTSP Stream', frame)
+
+    # Save every 30th frame to disk
+    if frame_count % 30 == 0:
+        frame_filename = os.path.join(output_dir, f"frame_{saved_frame_count}.jpg")
+        cv2.imwrite(frame_filename, frame)
+        print(f"Saved {frame_filename}")
+        saved_frame_count += 1
+
+    frame_count += 1
 
     # Press 'q' to exit the loop
     if cv2.waitKey(1) & 0xFF == ord('q'):
